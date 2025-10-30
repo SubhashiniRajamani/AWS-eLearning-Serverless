@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Online Learning Platform</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .hero-bg {
+      background-image: linear-gradient(90deg, rgba(6,30,77,0.85), rgba(15,55,120,0.85)),
+                        url('https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1600&q=60');
+      background-size: cover;
+      background-position: center;
+    }
+    .card-shadow { box-shadow: 0 10px 20px rgba(2,6,23,0.12); }
+    .course-thumb { height: 140px; object-fit: cover; width: 100%; border-radius: 0.5rem; }
+
+    #thankyou-popup {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    #thankyou-popup .popup-content {
+      background: white;
+      padding: 2rem;
+      border-radius: 1rem;
+      text-align: center;
+      max-width: 320px;
+    }
+  </style>
+</head>
+<body class="bg-gray-100 font-sans text-gray-800">
+
+  <!-- NAV -->
+  <header class="bg-primary-blue-50">
+    <nav class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-4">
+        <div class="text-white text-2xl font-extrabold tracking-wide">Online Learning Platform</div>
+      </div>
+      <div class="text-white text-sm hidden sm:block">Call us: 93-255-31-33 &nbsp; | &nbsp; English</div>
+    </nav>
+  </header>
+
+  <!-- MAIN -->
+  <main class="max-w-7xl mx-auto">
+    <!-- Enroll Page -->
+    <section id="page-enroll" class="hero-bg min-h-[72vh] flex items-center py-16 px-6 md:px-12">
+      <div class="w-full grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+        <div class="text-white max-w-2xl">
+          <h1 class="text-4xl md:text-5xl font-extrabold leading-tight mb-6">
+            We Improve the Professional Performance of Business and Professionals
+          </h1>
+          <p class="text-lg md:text-xl mb-8 opacity-90">
+            Easy more. Pay less. Practical courses built for working professionals.
+          </p>
+          <div class="flex gap-4">
+            <button id="cta-browse" class="bg-yellow-400 text-primary-blue font-bold py-3 px-6 rounded shadow hover:scale-[1.02] transition">Browse Courses</button>
+            <button id="cta-learnmore" class="border border-white text-white py-3 px-6 rounded hover:opacity-90 transition">How it works</button>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-xl p-6 md:p-8 card-shadow max-w-md self-start">
+          <div class="mb-4 text-sm text-gray-600">Enroll now and get 20% discount. Fill the information below to start the process</div>
+          <form id="enroll-form" class="space-y-3">
+            <input required name="name" placeholder="Name" class="w-full p-3 border rounded" />
+            <input required name="email" type="email" placeholder="Email" class="w-full p-3 border rounded" />
+            <input required name="phone" placeholder="Phone" class="w-full p-3 border rounded" />
+            <select required name="qualification" class="w-full p-3 border rounded bg-white">
+              <option value="" disabled selected>Qualification</option>
+              <option>B.E/B.Tech</option>
+              <option>MBA</option>
+              <option>M.E/M.Tech</option>
+              <option>Bachelor of science</option>
+              <option>PhD</option>
+              <option>Other</option>
+            </select>
+            <select required name="location" class="w-full p-3 border rounded bg-white">
+              <option value="" disabled selected>Location</option>
+              <option>Chennai</option>
+              <option>Bangalore</option>
+              <option>Hyderabad</option>
+              <option>Mumbai</option>
+              <option>Other</option>
+            </select>
+
+            <div class="flex items-center gap-3">
+              <input id="agree" type="checkbox" required />
+              <label for="agree" class="text-sm text-gray-600">I Agree to the Terms & Conditions</label>
+            </div>
+
+            <button type="submit" class="w-full bg-primary-blue-600 text-white font-bold py-3 rounded hover:opacity-90">REGISTER NOW</button>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- Courses Page -->
+    <section id="page-courses" class="hidden py-16 px-6 md:px-12">
+      <div class="max-w-6xl mx-auto">
+        <div class="text-center mb-10">
+          <h2 class="text-3xl font-bold text-primary-blue-700">Go Live in the Shortest Time</h2>
+          <p class="text-gray-600 mt-2">Simply register and start your learning journey.</p>
+        </div>
+
+        <div id="course-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+
+        <div class="mt-10 text-center">
+          <button id="back-to-top" class="bg-gray-200 py-2 px-4 rounded">Back to top</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Video Page -->
+    <section id="page-video" class="hidden py-16 px-6 md:px-12 bg-white min-h-[70vh]">
+      <div class="max-w-5xl mx-auto">
+        <div class="flex items-center justify-between mb-6">
+          <h3 id="video-title" class="text-2xl font-bold text-primary-blue-700">Course</h3>
+          <div>
+            <button id="btn-back-to-courses" class="bg-gray-200 py-2 px-4 rounded mr-2">Back to Courses</button>
+            <button id="btn-enroll-again" class="bg-primary-blue-600 text-white py-2 px-4 rounded">Enroll Another</button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          <div class="lg:col-span-3">
+            <div class="bg-gray-900 rounded-lg overflow-hidden card-shadow">
+              <video id="course-video" controls class="w-full h-96 bg-black" playsinline></video>
+            </div>
+
+            <div class="mt-4">
+              <h4 class="text-sm text-gray-600 mb-2">Your Progress: <span id="progress-text">0%</span></h4>
+              <div class="w-full bg-gray-200 rounded-full h-3">
+                <div id="progress-fill" class="h-3 rounded-full bg-primary-blue-600" style="width:0%"></div>
+              </div>
+              <div class="mt-3 flex gap-3">
+                <button id="mark-complete" class="bg-green-600 text-white py-2 px-4 rounded">Mark Completed</button>
+                <button id="download-video" class="bg-yellow-400 text-primary-blue-800 py-2 px-4 rounded">Download</button>
+              </div>
+            </div>
+          </div>
+
+          <aside class="lg:col-span-1 bg-gray-50 p-4 rounded-lg card-shadow">
+            <h5 class="font-semibold mb-2">Course Notes</h5>
+            <p id="course-notes" class="text-sm text-gray-600">Course description will appear here.</p>
+
+            <h6 class="mt-4 font-semibold">Video file</h6>
+            <p id="course-file" class="text-xs text-gray-500 truncate">-</p>
+          </aside>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Toast -->
+  <div id="toast" class="fixed right-6 bottom-6 z-50"></div>
+
+  <!-- Thank You Popup -->
+  <div id="thankyou-popup">
+    <div class="popup-content">
+      <h2 class="text-xl font-bold text-primary-blue-700 mb-2">🎉 Congratulations!</h2>
+      <p class="text-gray-600 mb-4">You’ve completed this course successfully.</p>
+      <button id="close-popup" class="bg-primary-blue-600 text-white py-2 px-4 rounded">Close</button>
+    </div>
+  </div>
+
+  <script>
+    const API_ENROLL = 'https://gldlquh2q3.execute-api.ap-south-1.amazonaws.com/prod/enroll';
+    const API_PROGRESS = 'https://gldlquh2q3.execute-api.ap-south-1.amazonaws.com/prod/update-progress';
+    const S3_BUCKET = 'learning-platform-website';
+    const REGION = 'ap-south-1';
+
+    const courses = [
+      { id:'aws', title:'Amazon Web Services Fundamentals', notes:'EC2, S3, IAM, VPC', videoFile:'AmazonWebService.mp4', thumb:'https://miro.medium.com/1*-r-0sszNNGZVsoNpWNXe9w.png' },
+      { id:'cloud', title:'Advanced Cloud Architectures', notes:'Serverless, microservices', videoFile:'Cloud Computing.mp4', thumb:'https://www.rishabhsoft.com/wp-content/uploads/2022/02/Banner-Image-Cloud-Computing-in-Digital-Transformation.jpg' },
+      { id:'devops', title:'DevOps with CI/CD', notes:'Pipelines, IaC, monitoring', videoFile:'Devops witn CI-CD.mp4', thumb:'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTF5M0f3k_TH6ygaKuvZ3rcQ28oV6YdHDqoFg&s' },
+      { id:'datasci', title:'Data Science Essentials', notes:'Pandas, EDA, visualization', videoFile:'Data Science.mp4', thumb:'https://bernardmarr.com/img/What%20Really%20Is%20Data%20Science%20A%20Super%20Simple%20Explanation%20For%20Anyone.png' },
+      { id:'ml', title:'Machine Learning Practical', notes:'Supervised, model deployment', videoFile:'Machine Learning.mp4', thumb:'https://www.simplilearn.com/ice9/free_resources_article_thumb/Deep-Learning-vs-Machine-Learning.jpg' },
+      { id:'web', title:'Full-Stack Web Development', notes:'Frontend, backend, DB', videoFile:'Fullstack Web.mp4', thumb:'https://res.cloudinary.com/jerrick/image/upload/d_642250b563292b35f27461a7.png,f_jpg,fl_progressive,q_auto,w_1024/636e3a326b79b1001d75c808.jpg' },
+      { id:'react', title:'React & Modern Frontend', notes:'Hooks, router, state', videoFile:'ReactCourse.mp4', thumb:'https://miro.medium.com/1*C4yGTDSLSz86TCakrza2HQ.jpeg' },
+      { id:'node', title:'Node.js Backend Development', notes:'REST, Express', videoFile:'Node.mp4', thumb:'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSw0uM3M25tDITF6GSHpe8TyNDGPKujgzWXkg&s' },
+      { id:'k8s', title:'Kubernetes & Orchestration', notes:'Pods, deployments, helm', videoFile:'Kubernetes.mp4', thumb:'https://www.softwebsolutions.com/wp-content/uploads/2023/07/Kubernetes.webp' },
+      { id:'security', title:'Cloud Security Basics', notes:'IAM, encryption', videoFile:'CyberSec.mp4', thumb:'https://www.raxatechnosecuritysolutions.in/assets/img/Cyber-Security_Banner.jpg' }
+    ];
+
+    let appState={enroll:null,currentCourseId:null,progress:{}};
+    try{const s=localStorage.getItem('olp_app_state');if(s)appState=JSON.parse(s);}catch(e){}
+    function saveState(){localStorage.setItem('olp_app_state',JSON.stringify(appState));}
+
+    function toast(msg,isError=false){
+      const t=document.createElement('div');
+      t.className=`mb-3 p-3 rounded shadow ${isError?'bg-red-100 text-red-700':'bg-green-100 text-green-700'}`;
+      t.textContent=msg;
+      document.getElementById('toast').appendChild(t);
+      setTimeout(()=>t.remove(),4000);
+    }
+
+    const show=id=>{
+      ['page-enroll','page-courses','page-video'].forEach(i=>document.getElementById(i).classList.add('hidden'));
+      document.getElementById(id).classList.remove('hidden');
+      window.scrollTo({top:0,behavior:'smooth'});
+    };
+
+    document.getElementById('enroll-form').addEventListener('submit',async evt=>{
+      evt.preventDefault();
+      const f=evt.target;
+      const data={name:f.name.value,email:f.email.value,phone:f.phone.value,qualification:f.qualification.value,location:f.location.value};
+      await fetch(API_ENROLL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}).catch(()=>{});
+      appState.enroll=data;saveState();
+      toast('Enrollment successful!');renderCourses();setTimeout(()=>show('page-courses'),700);
+    });
+
+    document.getElementById('cta-browse').onclick=()=>{renderCourses();show('page-courses');};
+    document.getElementById('back-to-top').onclick=()=>show('page-enroll');
+
+    function renderCourses(){
+      const grid=document.getElementById('course-grid');grid.innerHTML='';
+      courses.forEach(c=>{
+        const card=document.createElement('div');
+        card.className='bg-white p-4 rounded-lg card-shadow';
+        card.innerHTML=`<img class="course-thumb mb-3" src="${c.thumb}" />
+        <h4 class="font-semibold text-lg text-primary-blue-700 mb-1">${c.title}</h4>
+        <p class="text-sm text-gray-600 mb-3">${c.notes}</p>
+        <button data-id="${c.id}" class="select-course bg-primary-blue-600 text-white py-2 rounded w-full">Start</button>`;
+        grid.appendChild(card);
+      });
+      grid.querySelectorAll('.select-course').forEach(b=>b.onclick=e=>{
+        const id=e.currentTarget.dataset.id;
+        appState.currentCourseId=id;saveState();
+        const c=courses.find(x=>x.id===id);
+        openVideoPage(c);show('page-video');
+      });
+    }
+
+    const videoEl=document.getElementById('course-video');
+    const progressFill=document.getElementById('progress-fill');
+    const progressText=document.getElementById('progress-text');
+    const backBtn=document.getElementById('btn-back-to-courses');
+    const enrollBtn=document.getElementById('btn-enroll-again');
+    const markBtn=document.getElementById('mark-complete');
+
+    backBtn.onclick=()=>{renderCourses();show('page-courses');};
+    enrollBtn.onclick=()=>{appState.enroll=null;saveState();show('page-enroll');};
+
+    function openVideoPage(c){
+      document.getElementById('video-title').textContent=c.title;
+      document.getElementById('course-notes').textContent=c.notes;
+      document.getElementById('course-file').textContent=c.videoFile;
+      const url=`https://${S3_BUCKET}.s3.${REGION}.amazonaws.com/${encodeURIComponent(c.videoFile)}`;
+      videoEl.src=url;videoEl.load();
+
+      videoEl.ontimeupdate=()=>{
+        if(!videoEl.duration)return;
+        const f=videoEl.currentTime/videoEl.duration;
+        updateProgressUI(f);
+      };
+      markBtn.onclick=()=>{updateProgressUI(1);videoEl.pause();};
+    }
+
+    function updateProgressUI(f){
+      const pct=Math.round((f||0)*100);
+      if(pct>=100){
+        progressFill.style.width="100%";
+        progressText.textContent="Completed 🎉";
+        showThankYou();
+      }else{
+        progressFill.style.width=`${pct}%`;
+        progressText.textContent=`${pct}%`;
+      }
+      if(appState?.enroll?.email&&appState?.currentCourseId){
+        fetch(API_PROGRESS,{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({email:appState.enroll.email,course_id:appState.currentCourseId,
+        progress:pct>=100?"Completed":`${pct}%`})}).catch(()=>{});
+      }
+    }
+
+    function showThankYou(){
+      const p=document.getElementById('thankyou-popup');
+      p.style.display='flex';
+      document.getElementById('close-popup').onclick=()=>p.style.display='none';
+    }
+
+    document.addEventListener('DOMContentLoaded',()=>{renderCourses();show('page-enroll');});
+  </script>
+
+  <script>
+    tailwind.config={theme:{extend:{colors:{'primary-blue-600':'#1f3a93','primary-blue-700':'#15356f'}}}};
+  </script>
+</body>
+</html>

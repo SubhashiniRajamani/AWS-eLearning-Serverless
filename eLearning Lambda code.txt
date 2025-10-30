@@ -1,0 +1,177 @@
+OLP Lambda enrollment code ( function 1) 
+
+import json
+import os
+import boto3
+from datetime import datetime
+
+TABLE_NAME = os.environ.get('DYNAMODB_TABLE_NAME', 'LearningPlatformEnrollments')
+SOURCE_EMAIL = os.environ.get('SOURCE_EMAIL', 'bala.aparna5@gmail.com')
+SES_REGION = 'ap-south-1'
+
+dynamodb = boto3.resource('dynamodb')
+ses_client = boto3.client('ses', region_name=SES_REGION)
+
+def sanitize_value(value):
+    if value is None:
+        return None
+    if isinstance(value, str) and value.strip() == "":
+        return None
+    return value
+
+def get_value(body, *keys):
+    for k in keys:
+        if k in body and body[k] not in [None, "", "null"]:
+            return body[k]
+    return None
+
+def send_confirmation_email(recipient_email, user_name):
+    subject = "Enrollment Confirmation"
+    try:
+        response = ses_client.send_email(
+            Source=SOURCE_EMAIL,
+            Destination={'ToAddresses': [recipient_email]},
+            Message={
+                'Subject': {'Data': subject, 'Charset': 'UTF-8'},
+                'Body': {'Html': {'Data': f"<h1>Welcome, {user_name}!</h1>", 'Charset': 'UTF-8'}}
+            }
+        )
+        print(f"✅ SES email sent successfully. Message ID: {response['MessageId']}")
+        return True
+    except Exception as e:
+        print(f"❌ Error sending SES email: {e}")
+        return False
+
+def lambda_handler(event, context):
+    try:
+        print("🟡 Raw event received:", event)
+        body_text = event.get('body', '{}')
+        print("🟡 Raw body text:", body_text)
+
+        try:
+            body = json.loads(body_text)
+        except Exception as e:
+            print(f"❌ Error parsing body JSON: {e}")
+            return {'statusCode': 400, 'body': json.dumps({'message': 'Invalid JSON body'})}
+
+        # Prepare data
+        enrollment_data = {
+            'Email': get_value(body, 'email', 'Email'),
+            'Name': sanitize_value(get_value(body, 'name', 'Name')),
+            'Phone': sanitize_value(get_value(body, 'phone', 'Phone')),
+            'Qualification': sanitize_value(get_value(body, 'qualification', 'Qualification')),
+            'Location': sanitize_value(get_value(body, 'location', 'Location')),
+            'EnrollmentDate': datetime.utcnow().isoformat(),
+            'CourseID': sanitize_value(get_value(body, 'course_id', 'CourseID')),
+            'Progress': '0.00%',
+            'Status': 'In Progress'
+        }
+
+        print("🟢 Final data being written to DynamoDB:", enrollment_data)
+
+        table = dynamodb.Table(TABLE_NAME)
+        table.put_item(Item=enrollment_data)
+
+        send_confirmation_email(enrollment_data['Email'], enrollment_data.get('Name', 'Student'))
+
+        return {
+            'statusCode': 200,
+            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+            'body': json.dumps({'message': 'Enrollment successful.', 'data': enrollment_data})
+        }
+
+    except Exception as e:
+        print(f"❌ Internal Server Error: {e}")
+        return {'statusCode': 500, 'body': json.dumps({'message': str(e)})}
+
+
+
+
+
+
+
+
+OLP Lambda update progress ( function 2) 
+
+import json
+import os
+import boto3
+from decimal import Decimal, InvalidOperation
+
+TABLE_NAME = os.environ.get('DYNAMODB_TABLE_NAME', 'LearningPlatformEnrollments')
+SOURCE_EMAIL = os.environ.get('SOURCE_EMAIL', 'bala.aparna5@gmail.com')
+
+dynamodb = boto3.resource('dynamodb')
+ses_client = boto3.client('ses', region_name='ap-south-1')
+
+# --- Send completion email (Keep this as is) ---
+def send_completion_email(email, course_id):
+    # This is your existing SES code. We omit the full body for brevity.
+    subject = f"🎉 Course Completed: {course_id}"
+    # ... (rest of SES logic) ...
+    try:
+        # ... SES send_email call
+        print(f"✅ Completion mail sent to {email}")
+    except Exception as e:
+        print(f"❌ Error sending email: {e}")
+
+# --- Lambda Handler (ProgressUpdateLambda) ---
+def lambda_handler(event, context):
+    try:
+        body = json.loads(event.get('body', '{}'))
+
+        email = body.get('email')
+        # We need course_id to send the completion email, but we won't assume it needs to be updated.
+        course_id = body.get('course_id', 'NONE') 
+
+        if not email:
+            return {'statusCode': 400, 'body': json.dumps({'message': 'Missing Email'})}
+
+        # 1. Calculate Progress
+        raw_progress = body.get('progress', 0)
+        try:
+            # Assumes progress is a number (e.g., 0.5)
+            progress_decimal = Decimal(str(raw_progress))
+        except (InvalidOperation, ValueError, TypeError):
+            progress_decimal = Decimal('0')
+
+        progress_str = f"{float(progress_decimal)*100:.2f}%"
+        status = "Completed" if progress_decimal >= Decimal('1.0') else "In Progress"
+
+        table = dynamodb.Table(TABLE_NAME)
+
+        # 2. Update DynamoDB: ONLY Progress and Status. User details are left alone.
+        response = table.update_item(
+            Key={'Email': email},
+            UpdateExpression="""
+                SET
+                    Progress = :prog,
+                    #status = :status
+            """,
+            # 'Status' is a reserved word, so we map it.
+            ExpressionAttributeNames={
+                '#status': 'Status'
+            },
+            ExpressionAttributeValues={
+                ':prog': progress_str,
+                ':status': status
+            },
+            ReturnValues="UPDATED_NEW"
+        )
+        
+        # 🔑 DEBUGGING: Check what was updated
+        print("✅ DynamoDB update response (Progress):", response)
+
+        # 3. Send email if course completed
+        if status == "Completed":
+            send_completion_email(email, course_id)
+
+        return {
+            'statusCode': 200,
+            'headers': {'Access-Control-Allow-Origin': '*'},
+            'body': json.dumps({'message': 'Progress updated successfully'})
+        }
+
+    except Exception as e:
+        print("❌ Lambda Error (Progress Update):", e)
+        return {'statusCode': 500, 'body': json.dumps({'message': str(e)})}
